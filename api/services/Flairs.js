@@ -4,7 +4,7 @@ var referenceService = require('./References.js');
 var NodeCache = require('node-cache');
 var app_claim_cache = new NodeCache({stdTTL: 300});
 
-var configLocal = require('../../config/local.js');
+var configLocal = require('./config/local.js');
 var kantoFlair = ['bulbasaur', 'charmander', 'squirtle'];
 var alolaFlair = ['rowlet', 'litten', 'popplio'];
 var eventFlair = kantoFlair.concat(alolaFlair);

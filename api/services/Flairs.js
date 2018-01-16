@@ -3,7 +3,20 @@ var _ = require('lodash');
 var referenceService = require('./References.js');
 var NodeCache = require('node-cache');
 var app_claim_cache = new NodeCache({stdTTL: 300});
+
 var configLocal = require('../../config/local.js');
+var kantoFlair = ['bulbasaur', 'charmander', 'squirtle'];
+var alolaFlair = ['rowlet', 'litten', 'popplio'];
+var eventFlair = kantoFlair.concat(alolaFlair);
+var eventFlairRegExp = new RegExp('\\bkva-(' + eventFlair.join("|") + ')-[1-3]\\b');
+
+exports.eventFlair = eventFlair;
+exports.kantoFlair = kantoFlair;
+exports.eventFlairRegExp = eventFlairRegExp;
+exports.hasEventFlair = function(user) {
+  var flairClasses = user.flair.ptrades.flair_css_class || 'default';
+  return !!flairClasses.match(eventFlairRegExp);
+};
 
 
 exports.formattedName = function(name) {
@@ -178,7 +191,7 @@ exports.formattedRequirements = function (flair, flairs) {
   return formatted;
 };
 
-exports.gameOptions = ['X', 'Y', 'ΩR', 'αS', 'S', 'M'].join('|');
+exports.gameOptions = ['X', 'Y', 'ΩR', 'αS', 'S', 'M', 'US', 'UM'].join('|');
 exports.legalIgn = '[^()|,]{0,11}[^()|,\\s]';
 
 // Parse the games. e.g. 'ExampleName (X, Y)' --> [{ign: 'ExampleName', game: 'X'}, {ign: 'ExampleName', game: 'Y'}]
@@ -263,7 +276,14 @@ exports.makeNewCSSClass = function (previous_flair, new_addition, subreddit) {
   if (new_addition === 'involvement') {
     return previous_flair.replace(/( |$)/, '1$1');
   }
+
+  if (new_addition.match(/^kva/)) {
+    if (!previous_flair.match(eventFlairRegExp)) {
+      return previous_flair + " " + new_addition;
+    }
+  }
   if (subreddit === configLocal.reddit.tradeSub || !/ribbon/.test(previous_flair + new_addition)) {
+    
     return previous_flair.replace(/[^ 1]*/, new_addition);
   }
   if (/ribbon/.test(previous_flair)) {

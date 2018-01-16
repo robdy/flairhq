@@ -1,4 +1,4 @@
-var configLocal = require('../../config/local.js');
+var configLocal = require('../../config/reddit.js');
 
 exports.approve = function (ref, approve) {
   ref.approved = approve;

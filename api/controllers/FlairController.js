@@ -127,9 +127,9 @@ module.exports = {
             return res.status(400).json({error: "You have already selected a starter!"});
           }
           req.user.team = _.includes(Flairs.kantoFlair, eventFlair) ? "kanto" : "alola";
-          pFlair = Flairs.makeNewCSSClass(pFlair, `kva-${eventFlair}-1`, "pokemontrades");
+          pFlair = Flairs.makeNewCSSClass(pFlair, `kva-${eventFlair}-1`, "PokemonTrades");
           module.exports.addMembershipPoints(req, res, "add").then(() => {
-            promises.push(Reddit.setUserFlair(refreshToken, req.user.name, pFlair, flairs.ptrades, "pokemontrades").catch((err) => {
+            promises.push(Reddit.setUserFlair(refreshToken, req.user.name, pFlair, flairs.ptrades, "PokemonTrades").catch((err) => {
               sails.log.warn(`Reverting team ${req.user.team} join for ${req.user.name} due to the following error:`);
               sails.log.warn(err);
               module.exports.addMembershipPoints(req, res, "remove");
@@ -140,7 +140,7 @@ module.exports = {
           return res.status(400).json({error: "Unexpected extra flair."});
         }
       } else {
-        promises.push(Reddit.setUserFlair(refreshToken, req.user.name, pFlair, flairs.ptrades, "pokemontrades"));
+        promises.push(Reddit.setUserFlair(refreshToken, req.user.name, pFlair, flairs.ptrades, "PokemonTrades"));
       }
       promises.push(Reddit.setUserFlair(refreshToken, req.user.name, svFlair, flairs.svex, "SVExchange"));
       promises.push(User.update({name: req.user.name}, {loggedFriendCodes: friend_codes}));
@@ -179,7 +179,7 @@ module.exports = {
         Event.create([{
           type: "flairTextChange",
           user: req.user.name,
-          content: "Changed pokemontrades flair text to: " + req.allParams().ptrades + ". IP: " + ipAddress
+          content: "Changed PokemonTrades flair text to: " + req.allParams().ptrades + ". IP: " + ipAddress
         }, {
           type: "flairTextChange",
           user: req.user.name,

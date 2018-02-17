@@ -71,24 +71,24 @@ exports.applied = function (apps, flair) {
     return app.flair === flair.name && app.sub === flair.sub;
   });
 };
-exports.inPokemonTradesTrader = function (flair) {
+exports.inpokemontradesTrader = function (flair) {
   if (flair) {
     return flair.sub === "pokemontrades" && !flair.involvement && !flair.giveaways;
   }
 };
-exports.inPokemonTradesHelper = function (flair) {
+exports.inpokemontradesHelper = function (flair) {
   if (flair) {
     return flair.sub === "pokemontrades" && (flair.involvement > 0 || flair.giveaways > 0);
   }
 };
 exports.inSVExchangeHatcher = function (flair) {
   if (flair) {
-    return flair.sub === "svexchange" && flair.eggs > 0;
+    return flair.sub === "SVExchange" && flair.eggs > 0;
   }
 };
 exports.inSVExchangeGiver = function (flair) {
   if (flair) {
-    return flair.sub === "svexchange" && flair.giveaways > 0;
+    return flair.sub === "SVExchange" && flair.giveaways > 0;
   }
 };
 exports.userHasFlair = function (user, flair) {
@@ -348,9 +348,9 @@ exports.refreshAppClaim = function (ref, mod_username) {
   } else if (References.isInvolvement(ref) || References.isGiveaway(ref) && /reddit\.com\/r\/pokemontrades/.test(ref.url)) {
     query = {sub: 'pokemontrades', flair: 'involvement'};
   } else if (References.isEgg(ref)) {
-    query = {sub: 'svexchange', flair: {$not: /ribbon$/}};
+    query = {sub: 'SVExchange', flair: {$not: /ribbon$/}};
   } else if (References.isEggCheck(ref) || References.isGiveaway(ref) && /reddit\.com\/r\/SVExchange/.test(ref.url)) {
-    query = {sub: 'svexchange', flair: {endsWith: 'ribbon'}};
+    query = {sub: 'SVExchange', flair: {endsWith: 'ribbon'}};
   } else {
     return [];
   }

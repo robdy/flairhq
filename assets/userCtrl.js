@@ -44,7 +44,7 @@ module.exports = function ($scope, $location, io) {
   ];
   $scope.subNames = [
     {name: "pokemontrades", view: "Pokemon Trades"},
-    {name: "svexchange", view: "SV Exchange"}
+    {name: "SVExchange", view: "SV Exchange"}
   ];
   $scope.types = [
     {name: "event", display: "Event"},

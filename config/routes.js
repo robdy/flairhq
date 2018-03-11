@@ -210,6 +210,11 @@ module.exports.routes = {
   'get /version' : {
     controller : 'home',
     action     : 'version'
+  },
+
+  'get /test' : {
+    controller: 'user',
+    action: 'test'
   }
 };
 

@@ -105,6 +105,12 @@ module.exports = {
     });
   },
 
+  test: async function (req, res) {
+    var threads = await Ban.markTSVThreads(req.user.redToken, 'robdy');
+    //sails.log(threads);
+    res.json(threads);
+  },
+
   delNote: function (req, res) {
     ModNote.destroy(req.allParams().id).exec(function (err, note) {
       if (err) {

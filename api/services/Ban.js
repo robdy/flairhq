@@ -62,8 +62,8 @@ exports.updateAutomod = async function (redToken, username, subreddit, friend_co
 };
 //Lock and give flair to the user's TSV threads.
 exports.markTSVThreads = async function (redToken, username) {
-  var threads = await Reddit.searchTSVThreads(redToken, username);
-  var tsv_promises = [];
+  var output = await Reddit.searchTSVThreads(redToken, username);
+  /*var tsv_promises = [];
   threads.forEach(function (entry) {
     tsv_promises.push(Reddit.lockPost(redToken, entry.data.id));
     tsv_promises.push(Reddit.markNsfw(redToken, entry.data.id));
@@ -71,7 +71,7 @@ exports.markTSVThreads = async function (redToken, username) {
   });
   await Promise.all(tsv_promises);
   var output = 'Marked and locked /u/' + username + '\'s TSV threads (' + threads.length.toString() + ' total)';
-  sails.log(output);
+  sails.log(output);*/
   return output;
 };
 //Update the public banlist with the user's information

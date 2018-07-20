@@ -1,3 +1,5 @@
+var configLocal = require('../../config/reddit.js');
+
 exports.approve = function (ref, approve) {
   ref.approved = approve;
   if (!exports.isVerifiable(ref)) {
@@ -102,7 +104,7 @@ exports.numberOfPokemonGivenAway = function (refs) {
     return 0;
   }
   refs.filter(function (item) {
-    return exports.isGiveaway(item) && item.url.indexOf("pokemontrades") !== -1;
+    return exports.isGiveaway(item) && item.url.indexOf(configLocal.reddit.tradeSub) !== -1;
   }).forEach(function (ref) {
     givenAway += (ref.number || 0);
   });
@@ -114,7 +116,7 @@ exports.numberOfEggsGivenAway = function (refs) {
     return 0;
   }
   refs.filter(function (item) {
-    return exports.isGiveaway(item) && item.url.indexOf("SVExchange") > -1;
+    return exports.isGiveaway(item) && item.url.indexOf(configLocal.reddit.eggSub) > -1;
   }).forEach(function (ref) {
     givenAway += (ref.number || 0);
   });

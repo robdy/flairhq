@@ -3,6 +3,8 @@ var _ = require('lodash');
 var referenceService = require('./References.js');
 var NodeCache = require('node-cache');
 var app_claim_cache = new NodeCache({stdTTL: 300});
+
+var configLocal = require('../../config/reddit.js');
 var kantoFlair = ['bulbasaur', 'charmander', 'squirtle'];
 var alolaFlair = ['rowlet', 'litten', 'popplio'];
 var eventFlair = kantoFlair.concat(alolaFlair);
@@ -15,6 +17,7 @@ exports.hasEventFlair = function(user) {
   var flairClasses = user.flair.ptrades.flair_css_class || 'default';
   return !!flairClasses.match(eventFlairRegExp);
 };
+
 
 exports.formattedName = function(name) {
   if (!name) {
@@ -73,26 +76,26 @@ exports.applied = function (apps, flair) {
 };
 exports.inPokemonTradesTrader = function (flair) {
   if (flair) {
-    return flair.sub === "pokemontrades" && !flair.involvement && !flair.giveaways;
+    return flair.sub === configLocal.reddit.tradeSub && !flair.involvement && !flair.giveaways;
   }
 };
 exports.inPokemonTradesHelper = function (flair) {
   if (flair) {
-    return flair.sub === "pokemontrades" && (flair.involvement > 0 || flair.giveaways > 0);
+    return flair.sub === configLocal.reddit.tradeSub && (flair.involvement > 0 || flair.giveaways > 0);
   }
 };
 exports.inSVExchangeHatcher = function (flair) {
   if (flair) {
-    return flair.sub === "svexchange" && flair.eggs > 0;
+    return flair.sub === configLocal.reddit.eggSub && flair.eggs > 0;
   }
 };
 exports.inSVExchangeGiver = function (flair) {
   if (flair) {
-    return flair.sub === "svexchange" && flair.giveaways > 0;
+    return flair.sub === configLocal.reddit.eggSub && flair.giveaways > 0;
   }
 };
 exports.userHasFlair = function (user, flair) {
-  if (flair.sub === 'pokemontrades') {
+  if (flair.sub === configLocal.reddit.tradeSub) {
     if (!user || !user.flair || !user.flair.ptrades || !user.flair.ptrades.flair_css_class) {
       return false;
     }
@@ -128,7 +131,7 @@ exports.canUserApply = function (refs, applicationFlair, currentFlairs) {
     return false;
   }
   var userHasDefaultFlair = currentFlairs.filter(function (flair) {
-    return flair.sub === 'pokemontrades';
+    return flair.sub === configLocal.reddit.tradeSub;
   }).length === 0;
   if (userHasDefaultFlair && applicationFlair.name === 'involvement') {
     return false;
@@ -141,9 +144,9 @@ exports.canUserApply = function (refs, applicationFlair, currentFlairs) {
     userInvolvement = _.filter(refs, referenceService.isInvolvement).length,
     userEgg = _.filter(refs, referenceService.isEgg).length,
     userGiveaway = referenceService.numberOfEggChecks(refs) + referenceService.numberOfEggsGivenAway(refs);
-  if (applicationFlair.sub === "pokemontrades") {
+  if (applicationFlair.sub === configLocal.reddit.tradeSub) {
     userGiveaway = _.filter(refs, function (e) {
-      return referenceService.isGiveaway(e) && e.url.indexOf("pokemontrades") > -1;
+      return referenceService.isGiveaway(e) && e.url.indexOf(configLocal.reddit.tradeSub) > -1;
     }).length;
   }
   for (var i = 0; i < currentFlairs.length; i++) {
@@ -175,7 +178,7 @@ exports.formattedRequirements = function (flair, flairs) {
     formatted += reqs.involvement + (reqs.involvement > 1 ? ' free tradebacks/redemptions, ' : ' free tradeback/redemption, ');
   }
   if (reqs.giveaways) {
-    if (reqs.sub === 'pokemontrades') { // reqs.giveaways means two different things on the two subs
+    if (reqs.sub === configLocal.reddit.tradeSub) { // reqs.giveaways means two different things on the two subs
       formatted += reqs.giveaways + (reqs.giveaways > 1 ? ' giveaways, ' : ' giveaway, ');
     } else {
       formatted += reqs.giveaways + (reqs.giveaways > 1 ? ' eggs checked/given away, ' : ' egg checked/given away, ');
@@ -265,7 +268,7 @@ exports.makeNewCSSClass = function (previous_flair, new_addition, subreddit) {
     return new_addition;
   }
   if (new_addition === 'banned') {
-    if (subreddit === 'pokemontrades') {
+    if (subreddit === configLocal.reddit.tradeSub) {
       return previous_flair.replace(/^banned$/, '').replace(/([^ ]+)( .*)?$/, '$1 ') + 'banned';
     }
     return previous_flair.replace(/ ?banned/, '').replace(/(.)$/, '$1 ') + 'banned';
@@ -273,12 +276,14 @@ exports.makeNewCSSClass = function (previous_flair, new_addition, subreddit) {
   if (new_addition === 'involvement') {
     return previous_flair.replace(/( |$)/, '1$1');
   }
+
   if (new_addition.match(/^kva/)) {
     if (!previous_flair.match(eventFlairRegExp)) {
       return previous_flair + " " + new_addition;
     }
   }
-  if (subreddit === 'pokemontrades' || !/ribbon/.test(previous_flair + new_addition)) {
+  if (subreddit === configLocal.reddit.tradeSub || !/ribbon/.test(previous_flair + new_addition)) {
+    
     return previous_flair.replace(/[^ 1]*/, new_addition);
   }
   if (/ribbon/.test(previous_flair)) {
@@ -344,13 +349,13 @@ exports.refreshAppClaim = function (ref, mod_username) {
   // Guess what app a mod is working on based on the links they click
   var query = {};
   if (References.isTrade(ref)) {
-    query = {sub: 'pokemontrades', flair: {not: 'involvement'}};
-  } else if (References.isInvolvement(ref) || References.isGiveaway(ref) && /reddit\.com\/r\/pokemontrades/.test(ref.url)) {
-    query = {sub: 'pokemontrades', flair: 'involvement'};
+    query = {sub: configLocal.reddit.tradeSub, flair: {not: 'involvement'}};
+  } else if (References.isInvolvement(ref) || References.isGiveaway(ref) && new RegExp("reddit\.com\/r\/" + configLocal.reddit.tradeSub + "/").test(ref.url)) {
+    query = {sub: configLocal.reddit.tradeSub, flair: 'involvement'};
   } else if (References.isEgg(ref)) {
-    query = {sub: 'svexchange', flair: {$not: /ribbon$/}};
+    query = {sub: configLocal.reddit.eggSub, flair: {$not: /ribbon$/}};
   } else if (References.isEggCheck(ref) || References.isGiveaway(ref) && /reddit\.com\/r\/SVExchange/.test(ref.url)) {
-    query = {sub: 'svexchange', flair: {endsWith: 'ribbon'}};
+    query = {sub: configLocal.reddit.eggSub, flair: {endsWith: 'ribbon'}};
   } else {
     return [];
   }
